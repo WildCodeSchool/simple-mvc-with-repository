@@ -10,7 +10,7 @@
  * @link   http://fr3.php.net/manual/fr/book.pdo.php classe PDO
  */
 
-namespace App\Model;
+namespace App\Repository;
 
 use PDO;
 use PDOException;

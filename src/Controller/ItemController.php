@@ -2,41 +2,44 @@
 
 namespace App\Controller;
 
-use App\Model\ItemManager;
+use App\Repository\ItemRepository;
 
 class ItemController extends AbstractController
 {
+    private ItemRepository $itemRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->itemRepository = new ItemRepository();
+    }
+
     /**
      * List items
      */
     public function index(): string
     {
-        $itemManager = new ItemManager();
-        $items = $itemManager->selectAll('title');
+        $items = $this->itemRepository->selectAll('title');
 
         return $this->twig->render('Item/index.html.twig', ['items' => $items]);
     }
-
 
     /**
      * Show informations for a specific item
      */
     public function show(int $id): string
     {
-        $itemManager = new ItemManager();
-        $item = $itemManager->selectOneById($id);
+        $item = $this->itemRepository->selectOneById($id);
 
         return $this->twig->render('Item/show.html.twig', ['item' => $item]);
     }
-
 
     /**
      * Edit a specific item
      */
     public function edit(int $id): string
     {
-        $itemManager = new ItemManager();
-        $item = $itemManager->selectOneById($id);
+        $item = $this->itemRepository->selectOneById($id);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // clean $_POST data
@@ -45,7 +48,7 @@ class ItemController extends AbstractController
             // TODO validations (length, format...)
 
             // if validation is ok, update and redirection
-            $itemManager->update($item);
+            $this->itemRepository->update($item);
             header('Location: /item/show/' . $id);
         }
 
@@ -53,7 +56,6 @@ class ItemController extends AbstractController
             'item' => $item,
         ]);
     }
-
 
     /**
      * Add a new item
@@ -67,14 +69,12 @@ class ItemController extends AbstractController
             // TODO validations (length, format...)
 
             // if validation is ok, insert and redirection
-            $itemManager = new ItemManager();
-            $id = $itemManager->insert($item);
+            $id = $this->itemRepository->insert($item);
             header('Location:/item/show/' . $id);
         }
 
         return $this->twig->render('Item/add.html.twig');
     }
-
 
     /**
      * Delete a specific item
@@ -82,8 +82,7 @@ class ItemController extends AbstractController
     public function delete(int $id)
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $itemManager = new ItemManager();
-            $itemManager->delete($id);
+            $this->itemRepository->delete($id);
             header('Location:/item/index');
         }
     }
